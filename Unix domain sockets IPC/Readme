@@ -1,0 +1,13 @@
+common:
+	random_string function generate random strings by accesing elements from an array containg all the alphabets randomly
+
+fifo:
+	In fifo we are using a common fifo file in which programs access it and one program writes to the file and another program reads it. In this manner the string data with their indexes is shared between the program
+
+unix_socket:
+	In unix socket we are making a socket using the socket() function then we are using listen() function to listen to all programs that are trying to make a connection with the main program. Then we use read and write functions to exchange string data between two programs
+
+message queue:
+	A message queue is a linked list of messages stored within the kernel and identified by a message queue identifier. A new queue is created or an existing queue opened by msgget().Then we use msgsnd() function to send data to another program and we use msgrcv() function to receive the data in the other program
+
+

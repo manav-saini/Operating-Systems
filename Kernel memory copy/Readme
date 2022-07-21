@@ -1,0 +1,11 @@
+Description:
+	First we edit the system call table and add the details of our system call at the end of the first group. Then we put our system call function in the kernel/sys.c file.
+
+	System call function
+		Parameters: name of function , pointer of destination, pointer of source, number of rows, number of columns
+		Body:
+			First we are calculating size of the buffer by multiplying the rows, columns and sizeof float. Then we allocate memory to the buffer using the kmalloc function which take the bytes of the memory required and type of memory to allocate. 
+			Then we are using copy_from_user function to get the data from user virtual space to the kernel virtual space using which put the data of 2D array in the buffer. Then we take the buffer variable and put it as an argument with destination in the copy_to_user function to put the data from the kernel virtual space to the user virtual space. then we free the buffer variables and return 0 on successful compilation of the function.
+
+	Test function 
+		In the test function we define an og 2D array and put some values using nested loops and then we declare a cp array in which og content has to be copied. then we call our system call with parameters og,cp,r and c which copies the content of og array to cp. Then we print the content of Original array using nested loops and then we print the content of copied array using nested loops and our program ends. 

@@ -1,0 +1,8 @@
+Working 
+ In A we have declared the prototype of function B and function C in the starting of the program so that it can be used in the function A.
+
+In function A we are taking the input of a 64 bit integer from the user and we call function B with the inputted 64 bit inputted integer
+
+In function B we first extract the passed integer from the rdi register and store it in the 8 byte buffer i.e character and as all values are interpreted as ASCII in ASM it gets converted automatically to a ASCII string. We then pass the required inputs to the registers rax, rdi, rsi and rdx to call the write system call. Then we take the memory address of function C using lea and push it to the stack to change the return address and finally we return to function C
+
+In function C we are calling the exit function to exit the program

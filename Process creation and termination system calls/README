@@ -1,0 +1,28 @@
+Using the 'fork()' system function, we fork the application. This generates a new instance of the process. In the child process, fork() returns 0; in the parent process, it returns a positive number. If the fork fails, the function returns -1. All three of these scenarios are handled by our'main' function.
+
+Because the instruction counter is incremented following 'fork(),' both processes continue from the if-else line in'main.'
+
+We use the open system function to open the *.csv* file. We begin reading the pupils once the file has been successfully opened. In the event of an error, we output *error when opening file* and end the procedure.
+
+We utilise a function called 'line' which reads a line from a file and saves it in a buffer using system calls. Using the function 'parseStudent,' we parse this data to 'struct stud' for further usage.
+
+After successfully reading the file, we determine if this student is from section A or section B. If the student is from Section A, we publish the student's information using the 'printStudent' function.
+
+First and foremost, we must wait for the child process to finish so that we do not intervene while the child process is writing to *STDOUT*. Following that, we proceed in the same manner as the kid process. However, instead of printing information for A section students, we print information for B section students.
+
+System calls
+	pid_t
+		pid_t data type stands for process identification and it is used to store fork() return value
+	fork()
+		Fork system call is used for creating a new process, which is called child process, which runs concurrently with the process that makes the fork() call 
+	waitpid()
+		The waitpid() system call suspends execution of the calling process until a child specified by pid argument has changed state
+	open()
+		It is used to open file
+	read()
+		It is used to read CSV file line by line
+
+Error handling
+	If p<0. then error is thrown of forking nit done
+	if f is equal to -1 then error is thrown of file not opened
+

@@ -1,0 +1,49 @@
+diff --git nog_tar/sys.c og_tar/sys.c
+index 5550466..8fdac0d 100644
+--- nog_tar/sys.c
++++ og_tar/sys.c
+@@ -335,18 +335,6 @@ out_unlock:
+ 	return retval;
+ }
+ 
+-SYSCALL_DEFINE4(kernel_2d_memcpy, float *, destination, float *, source, int, row, int, col)
+-{
+-	int size = row*col*sizeof(float); 
+-	float *b = (float*)kmalloc(row*col*sizeof(float), GFP_KERNEL);
+-	if (copy_from_user(b, src, size) != 0)
+-		return -1;
+-	if (copy_to_user(dest, b, size) != 0)
+-		return -1;
+-	kfree(b);
+-	return 0;
+-}
+-
+ /*
+  * Unprivileged users may change the real gid to the effective gid
+  * or vice versa.  (BSD-style)
+@@ -644,8 +632,6 @@ error:
+ 	return retval;
+ }
+ 
+-
+-
+ SYSCALL_DEFINE1(setuid, uid_t, uid)
+ {
+ 	return __sys_setuid(uid);
+@@ -2709,4 +2695,3 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
+ 	return 0;
+ }
+ #endif /* CONFIG_COMPAT */
+-
+diff --git nog_tar/syscall_64.tbl og_tar/syscall_64.tbl
+index 21f0e4b..18b5500 100644
+--- nog_tar/syscall_64.tbl
++++ og_tar/syscall_64.tbl
+@@ -343,7 +343,6 @@
+ 332	common	statx			sys_statx
+ 333	common	io_pgetevents		sys_io_pgetevents
+ 334	common	rseq			sys_rseq
+-335 common  kernel_2d_memcpy    sys_kernel_2d_memcpy
+ # don't use numbers 387 through 423, add new calls after the last
+ # 'common' entry
+ 424	common	pidfd_send_signal	sys_pidfd_send_signal

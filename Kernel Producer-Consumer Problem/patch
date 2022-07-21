@@ -1,0 +1,195 @@
+diff --git og_tar/sys.c nog_tar/sys.c
+index 8fdac0d..b2a0803 100644
+--- og_tar/sys.c
++++ nog_tar/sys.c
+@@ -335,6 +335,30 @@ out_unlock:
+ 	return retval;
+ }
+ 
++SYSCALL_DEFINE2(schedtime, pid_t,pid, u16, delay){
++    struct pid *pid_struct;
++    struct task_struct *p;
++    pid_struct = find_get_pid(pid);
++    p = pid_task(pid_struct,PIDTYPE_PID);
++    p->se.vruntime = p->se.vruntime+delay;
++	return 0;
++}
++
++
++
++
++SYSCALL_DEFINE4(kernel_2d_memcpy, float *, destination, float *, source, int, row, int, col)
++{
++	int size = row*col*sizeof(float); 
++	float *b = (float*)kmalloc(row*col*sizeof(float), GFP_KERNEL);
++	if (copy_from_user(b, source, size) != 0)
++		return -1;
++	if (copy_to_user(destination, b, size) != 0)
++		return -1;
++	kfree(b);
++	return 0;
++}
++
+ /*
+  * Unprivileged users may change the real gid to the effective gid
+  * or vice versa.  (BSD-style)
+@@ -632,6 +656,8 @@ error:
+ 	return retval;
+ }
+ 
++
++
+ SYSCALL_DEFINE1(setuid, uid_t, uid)
+ {
+ 	return __sys_setuid(uid);
+@@ -2695,3 +2721,4 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
+ 	return 0;
+ }
+ #endif /* CONFIG_COMPAT */
++
+diff --git og_tar/syscall_64.tbl nog_tar/syscall_64.tbl
+index 18b5500..818d6c7 100644
+--- og_tar/syscall_64.tbl
++++ nog_tar/syscall_64.tbl
+@@ -343,6 +343,8 @@
+ 332	common	statx			sys_statx
+ 333	common	io_pgetevents		sys_io_pgetevents
+ 334	common	rseq			sys_rseq
++335 common  kernel_2d_memcpy    sys_kernel_2d_memcpy
++336 common  schedtime           sys_schedtime
+ # don't use numbers 387 through 423, add new calls after the last
+ # 'common' entry
+ 424	common	pidfd_send_signal	sys_pidfd_send_signal
+diff --git og_tar/sys.c nog4_tar/sys.c
+index 8fdac0d..4eb658a 100644
+--- og_tar/sys.c
++++ nog4_tar/sys.c
+@@ -131,7 +131,45 @@
+ #ifndef GET_TAGGED_ADDR_CTRL
+ # define GET_TAGGED_ADDR_CTRL()		(-EINVAL)
+ #endif
+-
++DEFINE_MUTEX(lock);
++static char queue[20][8];
++static int rear = 0;
++static int front = 0;
++static int capacity =20;
++static int insert(char *data)
++{
++    if (capacity == rear) {
++            return -1;
++        }
++      else
++      {
++		  	mutex_lock(&lock);
++            strcpy(queue[rear], data);
++			rear++;
++			mutex_unlock(&lock);
++            return(1);
++      }
++	
++}
++static int delete(char *data)
++{
++	int i;
++	if (front == rear) {
++            return -1;
++        }
++      else
++      {
++			mutex_lock(&lock);
++			strcpy(data,queue[0]);
++			
++			for (i = 0; i < rear - 1; i++) {
++				strcpy(queue[i], queue[i + 1]);
++            }
++			rear--;
++			mutex_unlock(&lock);
++            return(1);
++      }
++}
+ /*
+  * this is where the system-wide overflow UID and GID are defined, for
+  * architectures that now have 32-bit UID/GID but didn't in the past
+@@ -335,6 +373,52 @@ out_unlock:
+ 	return retval;
+ }
+ 
++SYSCALL_DEFINE2(schedtime, pid_t,pid, u16, delay){
++    struct pid *pid_struct;
++    struct task_struct *p;
++    pid_struct = find_get_pid(pid);
++    p = pid_task(pid_struct,PIDTYPE_PID);
++    p->se.vruntime = p->se.vruntime+delay;
++	return 0;
++}
++
++
++SYSCALL_DEFINE4(kernel_2d_memcpy, float *, destination, float *, source, int, row, int, col)
++{
++	int size = row*col*sizeof(float); 
++	float *b = (float*)kmalloc(row*col*sizeof(float), GFP_KERNEL);
++	if (copy_from_user(b, source, size) != 0)
++		return -1;
++	if (copy_to_user(destination, b, size) != 0)
++		return -1;
++	kfree(b);
++	return 0;
++}
++
++SYSCALL_DEFINE1(writer,char *,data_s){
++	int size = 1*8*sizeof(char);
++	char *d = (char *)kmalloc(size,GFP_KERNEL);
++	if(copy_from_user(d,data_s,size)==-1){
++		return -1;
++	}
++	if(insert(d)==-1){
++		return -1;
++	}
++	return 0;
++}
++
++SYSCALL_DEFINE1(reader,char *,data_d){
++	int size = 1*8*sizeof(char);
++	char *d = (char *)kmalloc(size,GFP_KERNEL);
++	if(delete(d)==-1){
++		return -1;
++	}
++	if(copy_to_user(data_d,d,size)==-1){
++		return -1;
++	}
++	return 0;
++}
++
+ /*
+  * Unprivileged users may change the real gid to the effective gid
+  * or vice versa.  (BSD-style)
+@@ -632,6 +716,8 @@ error:
+ 	return retval;
+ }
+ 
++
++
+ SYSCALL_DEFINE1(setuid, uid_t, uid)
+ {
+ 	return __sys_setuid(uid);
+@@ -2695,3 +2781,4 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
+ 	return 0;
+ }
+ #endif /* CONFIG_COMPAT */
++
+diff --git og_tar/syscall_64.tbl nog4_tar/syscall_64.tbl
+index 18b5500..f4ec8b0 100644
+--- og_tar/syscall_64.tbl
++++ nog4_tar/syscall_64.tbl
+@@ -343,6 +343,10 @@
+ 332	common	statx			sys_statx
+ 333	common	io_pgetevents		sys_io_pgetevents
+ 334	common	rseq			sys_rseq
++335 common  kernel_2d_memcpy    sys_kernel_2d_memcpy
++336 common  schedtime           sys_schedtime
++337 common  writer          sys_writer
++338 common  reader          sys_reader
+ # don't use numbers 387 through 423, add new calls after the last
+ # 'common' entry
+ 424	common	pidfd_send_signal	sys_pidfd_send_signal

@@ -1,0 +1,16 @@
+main.c
+	Description:
+		First we have a converter function which converts the EPOC time into a human readable string using the strftime function which is an inbuilt function in time.h which converts epoc time to string. 
+		Then we have sig_handler function which is basically SIGTERM signal handler which identify the SR and ST pid and according to it print random numbers and time received with signals using sigqueue from SR and ST 
+		Then we have the main function which register the signal handlers and fork and make child processes S1 , SR and ST. In first else we use exec and replace current image with E1 image and in second else we use exec and replace the current image with E2 image.
+
+E1.c
+	Description:
+		First we have pid global variable which stores the pid of the S1. Then we have rand_generator function which generates a random number rdrand system call with the help of inline assembly.
+		Then we have siglarm_handler function which is SIGALRM signal handler which read a random number from the CPU using rand_generator function. Then it enqueue the random number using sigqueue and deliver it to S1’s SIGTERM handler
+
+		Then we have the main function in which we set a timer using setitimer which sends signals to the the SIGALRM handler . We also assign the value to pid global variable.
+
+E2.c
+	Description
+		In this we have rdtscl function which read the CPU timestamp counter and return it. Then we have a function to parse a file which is used in function frquency and btime to extract CPU frequency and btime from the files /proc/cpuinfo and /proc/stat respectively. Then we have SIGALRM handler and then in main we are doing same as E1 main registering a signal handler then setting the timer.

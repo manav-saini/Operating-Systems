@@ -1,0 +1,10 @@
+changes made in sys.c
+	A function was added with name schedtime which first access the pid structure of the pid of the process passed to the system call function using find_get_pid function and then we pass it to the pid_task fucntion to access the task_structure of the process then we access the vruntime in it and increase it with the delay passed to the function. 
+
+
+changes made in syscall_64.tbl
+	336 common  schedtime           sys_schedtime
+	This line is added to define the system call
+
+test.c and test2.c 
+	We use fork function to make two processes and in parent function we first calculate time using clock() function then call the systemcall then calculate the time difference again and then print it. In another test file I have used the same the program without using the system call to see the difference.
